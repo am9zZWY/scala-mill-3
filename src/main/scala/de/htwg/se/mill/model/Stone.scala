@@ -26,6 +26,6 @@ object Stone {
     case "w-" => new WhiteStone(0, Color.white)
     case "b+" => new BlackStone(1, Color.black)
     case "b-" => new BlackStone(0, Color.black)
-    case "n" => new ColorLessStone(0, Color.noColor)
+    case _ => new ColorLessStone(0, Color.noColor)
   }
 }

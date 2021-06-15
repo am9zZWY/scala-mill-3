@@ -8,6 +8,12 @@ case class Matrix[T](allRows: Vector[Vector[T]]) {
 
   val size: Int = allRows.size
 
+  def cellsWithIndex(): Vector[((Int, Int), T)] =
+    for {
+      (row, rowIndex) <- allRows.zipWithIndex
+      (cell, colIndex) <- row.zipWithIndex
+    } yield ((rowIndex, colIndex), cell)
+
   def cell(row: Int, col: Int): T = allRows(row)(col)
 
   def allowedCell(row: Int, col: Int): Boolean = allowedPosition.contains((row, col))
