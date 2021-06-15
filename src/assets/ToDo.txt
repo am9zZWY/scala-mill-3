@@ -1,0 +1,8 @@
+Logik:
+
+Player-Verwaltung --> evtl interface
+Mill-State zu spät aktualisiert
+
+roundcounter nicht immer angezeigt --> nur bei jedem zweiten
+moven in die gleiche farbe in eine mühle lässt einen stein von der gleichen farbe wegnehmen --> nicht mehr
+
