@@ -5,7 +5,7 @@ import de.htwg.se.mill.model.{Cell, Color, Stone}
 import de.htwg.se.mill.util.Observer
 
 
-class Tui(controller: Controller) extends Observer {
+class Tui(controller: Controller) extends Observer:
 
   controller.add(this)
   val size = 7
@@ -30,4 +30,3 @@ class Tui(controller: Controller) extends Observer {
     println(GameState.message(controller.gameState))
     controller.gameState = GameState.IDLE
     true
-}

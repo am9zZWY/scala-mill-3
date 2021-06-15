@@ -21,13 +21,11 @@ case class Field(allCells: Matrix[Cell], millState: String):
 
   def available(row: Int, col: Int): Boolean = possiblePosition(row, col) && !cell(row, col).isSet
 
-  def set(row: Int, col: Int, c: Cell): (Field, Boolean) = {
-    if (available(row, col)) {
+  def set(row: Int, col: Int, c: Cell): (Field, Boolean) =
+    if (available(row, col)) then
       (replace(row, col, c), true)
-    } else {
+    else
       (copy(), false)
-    }
-  }
 
   def replace(row: Int, col: Int, c: Cell): Field = copy(allCells.replaceCell(row, col, c))
 

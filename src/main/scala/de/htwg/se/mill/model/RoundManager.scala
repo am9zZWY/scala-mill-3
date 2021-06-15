@@ -13,79 +13,67 @@ case class RoundManager(field: Field,
                         roundCounter: Int = 0,
                         borderToMoveMode: Int = 18,
                         update: (Int, Int) = (-1, -1),
-                        winner: Int = 0) {
+                        winner: Int = 0):
 
-  def this() = {
-    this(field = new Field(size = 7))
-  }
+  def this() = this(field = new Field(size = 7))
 
   def blackTurn(): Boolean = abs(roundCounter % 2) == 1
 
   def whiteTurn(): Boolean = abs(roundCounter % 2) == 0
 
-  def handleClick(row: Int, col: Int): RoundManager = {
+  def handleClick(row: Int, col: Int): RoundManager =
     ((if (blackTurn()) player2Mode else player1Mode) match {
       case SetModeState() => set((row, col))
       case RemoveModeState() => remove((row, col))
       case MoveModeState() => move((row, col))
       case FlyModeState() => fly((row, col))
     }).checkWinner().modeChoice()
-  }
 
-  def modeChoice(placedStones: (Int, Int) = (field.placedBlackStones(), field.placedWhiteStones())): RoundManager = {
+  def modeChoice(placedStones: (Int, Int) = (field.placedBlackStones(), field.placedWhiteStones())): RoundManager =
     val mgr: RoundManager = copy()
     var player1Mode = mgr.player1Mode
     var player2Mode = mgr.player2Mode
     val roundCounter = mgr.roundCounter
     val (placedBlackStones, placedWhiteStones) = placedStones
 
-    if (field.millState != MillState.handle(NoMillState())) {
+    if field.millState != MillState.handle(NoMillState()) then
       MillState.whichState(field.millState) match {
         case WhiteMillState() => player1Mode = RemoveModeState()
         case BlackMillState() => player2Mode = RemoveModeState()
       }
-    } else if (roundCounter < borderToMoveMode) {
+    else if roundCounter < borderToMoveMode then
       player1Mode = SetModeState()
       player2Mode = SetModeState()
-      if (roundCounter == borderToMoveMode - 1) {
+      if roundCounter == borderToMoveMode - 1 then
         player1Mode = MoveModeState()
-      }
-    } else if (placedBlackStones == 3 || placedWhiteStones == 3) {
+    else if placedBlackStones == 3 || placedWhiteStones == 3 then
       player1Mode = MoveModeState()
       player2Mode = MoveModeState()
-      if (placedWhiteStones == 3) {
+      if placedWhiteStones == 3 then
         player1Mode = FlyModeState()
-      }
-      if (placedBlackStones == 3) {
+      if placedBlackStones == 3 then
         player2Mode = FlyModeState()
-      }
-    } else {
+    else
       player1Mode = MoveModeState()
       player2Mode = MoveModeState()
-    }
     copy(player1Mode = player1Mode, player2Mode = player2Mode)
-  }
 
-  private def set(cell: (Int, Int)): RoundManager = {
+  private def set(cell: (Int, Int)): RoundManager =
     val mgr: RoundManager = copy()
     var field: Field = mgr.field
     var roundCounter: Int = mgr.roundCounter
     val (row, col): (Int, Int) = cell
 
-    if (field.available(row, col) && field.millState == "No Mill") {
+    if field.available(row, col) && field.millState == "No Mill" then
       // set cell normally
       val (rField, rSuccessfullyRemoved) = field.set(row, col, if (mgr.blackTurn()) Cell("cb") else Cell("cw"))
-      if (rSuccessfullyRemoved) {
+      if rSuccessfullyRemoved then
         field = rField.checkMill(row, col)
-        if (field.millState == "No Mill") {
+        if field.millState == "No Mill" then
           roundCounter += 1
-        }
-      }
-    }
     copy(field = field, roundCounter = roundCounter)
-  }
 
-  private def remove(cell: (Int, Int)): RoundManager = {
+  private def remove(cell: (Int, Int)): RoundManager = 
     val mgr: RoundManager = copy()
     var field: Field = mgr.field
     var roundCounter: Int = mgr.roundCounter
@@ -93,55 +81,47 @@ case class RoundManager(field: Field,
     var update: Int = 0
 
     val cellColor: Color.Value = field.cell(row, col).content.whichColor
-    if ((cellColor == Color.black && mgr.whiteTurn()) || (cellColor == Color.white && mgr.blackTurn())) {
+    if (cellColor == Color.black && mgr.whiteTurn()) || (cellColor == Color.white && mgr.blackTurn()) then
       val ignore: Boolean = field.placedBlackStones() <= 3 && field.placedWhiteStones() <= 3
       val (rField, rSuccessfullyRemoved) = field.removeStone(row, col, ignore)
-      if (rSuccessfullyRemoved) {
+      if rSuccessfullyRemoved then
         field = rField.resetMill()
         roundCounter += 1
         update = 2
-      }
-    }
     copy(field = field, roundCounter = roundCounter)
-  }
 
-  private def checkIfCanMove(): Boolean = {
+  private def checkIfCanMove(): Boolean =
     // checks if the player has a cell where it can move to
     // if not it returns false
-    if ((whiteTurn() && player1Mode.handle == "MoveMode") || (blackTurn() && player2Mode.handle == "MoveMode")) {
+    if (whiteTurn() && player1Mode.handle == "MoveMode") || (blackTurn() && player2Mode.handle == "MoveMode") then
       val playerColor: Color.Value = if (blackTurn()) Color.black else Color.white
       field.cellsWithIndex
         .filter(c => c._2.content.whichColor == playerColor)
         .exists(c => field.checkIfCanMove(c._1._1, c._1._2))
-    } else {
+    else
       true
-    }
-  }
 
-  private def checkIfHasOnly3Stones(): Boolean = {
-    if (blackTurn() && player2Mode.handle != "SetMode") {
+  private def checkIfHasOnly3Stones(): Boolean =
+    if blackTurn() && player2Mode.handle != "SetMode" then
       field.placedBlackStones() < 3
-    } else if (whiteTurn() && player1Mode.handle != "SetMode") {
+    else if (whiteTurn() && player1Mode.handle != "SetMode") then
       field.placedWhiteStones() < 3
-    } else {
+    else
       false
-    }
-  }
 
-  private def checkWinner(): RoundManager = {
+  private def checkWinner(): RoundManager =
     if (checkIfHasOnly3Stones() || !checkIfCanMove()) {
       val winner = if (blackTurn()) 2 else 1
       copy(winner = winner)
     } else {
       copy()
     }
-  }
 
   private def move(cell: (Int, Int)): RoundManager = moveOrFly(cell, field.moveStone)
 
   private def fly(cell: (Int, Int)): RoundManager = moveOrFly(cell, field.fly)
 
-  private def moveOrFly(cell: (Int, Int), changeStone: (Int, Int, Int, Int) => (Field, Boolean)): RoundManager = {
+  private def moveOrFly(cell: (Int, Int), changeStone: (Int, Int, Int, Int) => (Field, Boolean)): RoundManager =
     val mgr: RoundManager = copy()
     var field: Field = mgr.field
     var roundCounter: Int = mgr.roundCounter
@@ -172,5 +152,3 @@ case class RoundManager(field: Field,
       }
     }
     copy(field = field, roundCounter = roundCounter, tmpCell = tmpCell, update = mgr.tmpCell)
-  }
-}

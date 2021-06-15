@@ -2,7 +2,7 @@ package de.htwg.se.mill.model
 
 import scala.util.Random
 
-class FieldCreator() {
+class FieldCreator():
 
   def createField(size:Int): Field = {
     if (size % 2 == 1) {
@@ -34,4 +34,3 @@ class FieldCreator() {
 //    val colorset = Color.values.toIndexedSeq
 //    field.set(row, col, Cell(filled = true, Stone(1, colorset.apply(color))))
 //  }
-}
