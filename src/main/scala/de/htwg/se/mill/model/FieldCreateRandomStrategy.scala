@@ -22,9 +22,9 @@ class FieldCreateRandomStrategy extends FieldCreateStrategyTemplate {
       col = Random.nextInt(field.size)
     val color = Random.nextInt(2)
     if (color == 0) {
-      field.set(row, col, Cell(filled = true, Stone("w+")))
+      field.set(row, col, Cell("cw"))._1
     } else {
-      field.set(row, col, Cell(filled = true, Stone("b+")))
+      field.set(row, col, Cell("cb"))._1
     }
   }
 }

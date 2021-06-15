@@ -10,9 +10,12 @@ class Controller(var field:Field) extends Observable:
   var gameState: GameState = IDLE
   var roundManager = null
 
-
+  def handleClick(row: Int, col: Int) =
+    roundManager = roundManager.handleClick(row, col)
+    notifyObservers
+  
   def createEmptyField(size: Int): Unit =
-    field = new Field(size)
+    roundManager = roundManager.copy(field = new FieldCreator().createField(7)) 
     notifyObservers
 
   def createRandomField(size: Int, amoutStones:Int): Unit =
