@@ -3,6 +3,8 @@ package de.htwg.se.mill.controller
 import de.htwg.se.mill.util.{Observable, UndoManager}
 import de.htwg.se.mill.controller.GameState._
 import de.htwg.se.mill.model._
+import de.htwg.se.mill.model.fieldComponent.{FieldCreateRandomStrategy, FieldCreator}
+import de.htwg.se.mill.model.roundManagerComponent.RoundManager
 
 class Controller extends Observable:
   var gameState: GameState = IDLE

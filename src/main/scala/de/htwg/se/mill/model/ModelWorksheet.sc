@@ -1,4 +1,5 @@
-import de.htwg.se.mill.model.{Cell, Color, Field, FieldCreator, Matrix, Stone}
+import de.htwg.se.mill.model.fieldComponent.{Cell, Field, Matrix, Stone}
+import de.htwg.se.mill.model.Color
 
 import scala.io.StdIn.readLine
 

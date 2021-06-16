@@ -1,7 +1,7 @@
 package de.htwg.se.mill.aview
 
 import de.htwg.se.mill.controller.{Controller, GameState}
-import de.htwg.se.mill.model.{Cell, Color, Stone}
+import de.htwg.se.mill.model.Color
 import de.htwg.se.mill.util.Observer
 
 
