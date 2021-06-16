@@ -1,18 +1,19 @@
-package de.htwg.se.mill.model
+package de.htwg.se.mill.model.fieldComponent
+
+import de.htwg.se.mill.model.fieldComponent.Field
 
 import scala.util.Random
 
 class FieldCreator():
 
-  def createField(size:Int): Field = {
-    if (size % 2 == 1) {
+  def createField(size:Int): Field =
+    if (size % 2 == 1) then
       val field = new Field(size)
       field
-    } else {
+    else 
       val field = new Field(size + 1)
       field
-    }
-  }
+    
 //
 //  def fillRandomly(size:Int, amountStones: Int): Field = {
 //    var modField = createField(size)

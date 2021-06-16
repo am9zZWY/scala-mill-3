@@ -1,38 +1,39 @@
-package de.htwg.se.mill.model
+package de.htwg.se.mill.model.fieldComponent
+
+import de.htwg.se.mill.model._
 
 import scala.util.{Failure, Success, Try}
 
+case class Field(allCells: Matrix[CellTrait], millState: String):
 
-case class Field(allCells: Matrix[Cell], millState: String):
-
-  def this(allCells: Matrix[Cell]) =
+  def this(allCells: Matrix[CellTrait]) =
     this(allCells, MillState.handle(NoMillState()))
 
   def this(size: Int) =
-    this(new Matrix[Cell](size, Cell("ce")))
+    this(new Matrix[CellTrait](size, Cell("ce")))
 
   val size: Int = allCells.size
 
-  def cell(row: Int, col: Int): Cell = allCells.cell(row, col)
+  def cell(row: Int, col: Int): CellTrait = allCells.cell(row, col)
 
-  def cellsWithIndex: Vector[((Int, Int), Cell)] = allCells.cellsWithIndex()
+  def cellsWithIndex: Vector[((Int, Int), CellTrait)] = allCells.cellsWithIndex()
 
   def possiblePosition(row: Int, col: Int): Boolean = allCells.allowedCell(row, col)
 
-  def available(row: Int, col: Int): Boolean = possiblePosition(row, col) && !cell(row, col).isSet
+  def available(row: Int, col: Int): Boolean = possiblePosition(row, col) && !cell(row, col).filled
 
-  def set(row: Int, col: Int, c: Cell): (Field, Boolean) =
+  def set(row: Int, col: Int, c: CellTrait): (Field, Boolean) =
     if (available(row, col)) then
       (replace(row, col, c), true)
     else
       (copy(), false)
 
-  def replace(row: Int, col: Int, c: Cell): Field = copy(allCells.replaceCell(row, col, c))
+  def replace(row: Int, col: Int, c: CellTrait): Field = copy(allCells.replaceCell(row, col, c))
 
-  def checkIfCanMove(row: Int, col: Int): Boolean = neighbours(row, col).exists(c => !cell(c._1, c._2).isSet)
+  def checkIfCanMove(row: Int, col: Int): Boolean = neighbours(row, col).exists(c => !cell(c._1, c._2).filled)
 
   def moveStone(rowOld: Int, colOld: Int, rowNew: Int, colNew: Int): (Field, Boolean) =
-    if isNeighbour(rowOld, colOld, rowNew, colNew) && !cell(rowNew, colNew).isSet then
+    if isNeighbour(rowOld, colOld, rowNew, colNew) && !cell(rowNew, colNew).filled then
       fly(rowOld, colOld, rowNew, colNew)
     else
       (copy(), false)
@@ -51,7 +52,7 @@ case class Field(allCells: Matrix[Cell], millState: String):
     else
       (field, false)
 
-  private def placedStonesCounter(color: Color.Value): Int =
+  private def placedStonesCounter(color: Color): Int =
     this.allCells.allowedPosition.count(x => !this.available(x._1, x._2) && this.cell(x._1, x._2).content.whichColor.equals(color))
 
 
@@ -115,8 +116,7 @@ case class Field(allCells: Matrix[Cell], millState: String):
   def resetMill(): Field = copy(millState = MillState.handle(NoMillState()))
 
   def checkMill(row: Int, col: Int): Field =
-    val checkMill: ((Cell, Cell, Cell) => Boolean) => Boolean = checkMillC(row, col)((c1, c2, c3) => checkMillSet(c1, c2, c3))
-
+    val checkMill: ((CellTrait, CellTrait, CellTrait) => Boolean) => Boolean = checkMillC(row, col)((c1, c2, c3) => checkMillSet(c1, c2, c3))
     copy(millState = if (checkMill((c1, c2, c3) => checkMillBlack(c1, c2, c3))) {
       MillState.handle(BlackMillState())
     } else if (checkMill((c1, c2, c3) => checkMillWhite(c1, c2, c3))) {
@@ -125,7 +125,7 @@ case class Field(allCells: Matrix[Cell], millState: String):
       MillState.handle(NoMillState())
     })
 
-  private def checkMillC(row: Int, col: Int)(checkAll: (Cell, Cell, Cell) => Boolean)(check: (Cell, Cell, Cell) => Boolean): Boolean =
+  private def checkMillC(row: Int, col: Int)(checkAll: (CellTrait, CellTrait, CellTrait) => Boolean)(check: (CellTrait, CellTrait, CellTrait) => Boolean): Boolean =
     val cell1 = cell(row, col)
     Try(millneighbours(row, col)) match {
       case Success(n) => (for {
@@ -142,14 +142,14 @@ case class Field(allCells: Matrix[Cell], millState: String):
 
   private def checker[T](check: T => Boolean)(values: Vector[T]): Boolean = values.forall(check(_))
 
-  private def checkMillSet(cell1: Cell, cell2: Cell, cell3: Cell): Boolean = checker[Cell](value => value.isSet)(Vector(cell1, cell2, cell3))
+  private def checkMillSet(cell1: CellTrait, cell2: CellTrait, cell3: CellTrait): Boolean = checker[CellTrait](value => value.filled)(Vector(cell1, cell2, cell3))
 
-  private def checkMillColor(color: Color.Value)(cell1: Cell, cell2: Cell, cell3: Cell): Boolean =
-    checker[Cell](value => value.content.whichColor == color)(Vector(cell1, cell2, cell3))
+  private def checkMillColor(color: Color)(cell1: CellTrait, cell2: CellTrait, cell3: CellTrait): Boolean =
+    checker[CellTrait](value => value.content.whichColor == color)(Vector(cell1, cell2, cell3))
 
-  private def checkMillBlack(cell1: Cell, cell2: Cell, cell3: Cell): Boolean = checkMillColor(Color.black)(cell1, cell2, cell3)
+  private def checkMillBlack(cell1: CellTrait, cell2: CellTrait, cell3: CellTrait): Boolean = checkMillColor(Color.black)(cell1, cell2, cell3)
 
-  private def checkMillWhite(cell1: Cell, cell2: Cell, cell3: Cell): Boolean = checkMillColor(Color.white)(cell1, cell2, cell3)
+  private def checkMillWhite(cell1: CellTrait, cell2: CellTrait, cell3: CellTrait): Boolean = checkMillColor(Color.white)(cell1, cell2, cell3)
 
   def createNewField: Field = new Field(size)
 
@@ -169,4 +169,3 @@ case class Field(allCells: Matrix[Cell], millState: String):
         }).mkString("")
       }).mkString("\n")
     }\n"
-  

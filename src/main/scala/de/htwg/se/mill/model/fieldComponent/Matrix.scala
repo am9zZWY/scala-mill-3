@@ -1,6 +1,6 @@
-package de.htwg.se.mill.model
+package de.htwg.se.mill.model.fieldComponent
 
-case class Matrix[T](allRows: Vector[Vector[T]]) {
+case class Matrix[T](allRows: Vector[Vector[T]]):
   def this(size: Int, filling: T) = this(Vector.tabulate(size, size) { (x1, x2) => filling })
 
   val allowedPosition = List((0, 0), (0, 3), (0, 6), (1, 1), (1, 3), (1, 5), (2, 2), (2, 3), (2, 4), (3, 0), (3, 1), (3, 2),
@@ -21,4 +21,3 @@ case class Matrix[T](allRows: Vector[Vector[T]]) {
   def refill(filling: T): Matrix[T] = copy(Vector.tabulate(size, size) { (x1, x2) => filling })
 
   def replaceCell(x1: Int, x2: Int, cell: T): Matrix[T] = copy(allRows.updated(x1, allRows(x1).updated(x2, cell)))
-}
